@@ -1,0 +1,12 @@
+target/
+.git/
+.gitignore
+.env
+.env.*
+config/
+application-local*.properties
+application-local*.yml
+*.pem
+*.key
+.idea/
+.vscode/
