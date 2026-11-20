@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -28,11 +29,39 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problem(HttpStatus.NOT_FOUND, "Resource not found", ex.getMessage());
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
+        return problem(HttpStatus.UNAUTHORIZED, "Authentication failed", ex.getMessage());
+    }
+
+    @ExceptionHandler(RegistrationNotAllowedException.class)
+    ProblemDetail handleRegistrationNotAllowed(RegistrationNotAllowedException ex) {
+        return problem(HttpStatus.FORBIDDEN, "Registration not allowed", ex.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateEmailException.class)
+    ProblemDetail handleDuplicateEmail(DuplicateEmailException ex) {
+        return problem(HttpStatus.CONFLICT, "Duplicate email", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidRequestException.class)
+    ProblemDetail handleInvalidRequest(InvalidRequestException ex) {
+        ProblemDetail body = problem(HttpStatus.BAD_REQUEST, "Validation failed", "One or more fields are invalid.");
+        body.setProperty("errors", List.of(new FieldViolation(ex.getField(), ex.getReason())));
+        return body;
+    }
+
     @ExceptionHandler(DuplicateVehicleNumberException.class)
     ProblemDetail handleDuplicateVehicleNumber(DuplicateVehicleNumberException ex) {
         ProblemDetail pd = problem(HttpStatus.CONFLICT, "Duplicate vehicle number", ex.getMessage());
         pd.setProperty("vehicleNumber", ex.getVehicleNumber());
         return pd;
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    ProblemDetail handleInvalidSort(PropertyReferenceException ex) {
+        return problem(HttpStatus.BAD_REQUEST, "Invalid sort property",
+                "Cannot sort by '" + ex.getPropertyName() + "'.");
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

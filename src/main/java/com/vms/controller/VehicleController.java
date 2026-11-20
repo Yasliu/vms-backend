@@ -7,7 +7,6 @@ import com.vms.dto.VehicleUpdateRequest;
 import com.vms.entity.VehicleStatus;
 import com.vms.service.VehicleService;
 import jakarta.validation.Valid;
-import java.net.URI;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/v1/vehicles")
@@ -35,7 +35,9 @@ public class VehicleController {
     @PostMapping
     public ResponseEntity<VehicleResponse> create(@Valid @RequestBody VehicleCreateRequest request) {
         VehicleResponse created = service.create(request);
-        return ResponseEntity.created(URI.create("/api/v1/vehicles/" + created.id())).body(created);
+        var location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(created.id())
+                .toUri();
+        return ResponseEntity.created(location).body(created);
     }
 
     @GetMapping
