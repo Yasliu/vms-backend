@@ -36,7 +36,8 @@ build/
 .env
 .env.*
 !.env.example
-config/
+# Only the project-root config/ folder (Spring Boot's local override), never the com.vms.config package.
+/config/
 application-local*.properties
 application-local*.yml
 *.pem
